@@ -1,0 +1,67 @@
+<% layout = 'layouts/admin' %>
+<div class="max-w-3xl">
+  <a href="/admin/products" class="text-sm text-gray-500 hover:text-black mb-6 inline-block">← Volver a productos</a>
+  <form action="/admin/products" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <div class="bg-white border border-gray-200 p-6 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">Nombre del producto *</label>
+          <input type="text" name="name" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Slug (URL) *</label>
+          <input type="text" name="slug" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="vestido-midi-negro">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">Categoría *</label>
+          <select name="category" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+            <% CATEGORIES.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Precio base (COP) *</label>
+          <input type="number" name="basePrice" min="0" step="1000" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Descripción</label>
+        <textarea name="description" rows="4" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">Imagen (subir archivo)</label>
+          <input type="file" name="image" accept="image/*" class="w-full border border-gray-300 px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">O URL de imagen</label>
+          <input type="url" name="imageUrl" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="https://...">
+        </div>
+      </div>
+      <div>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="isFeatured" value="true" class="w-4 h-4">
+          <span class="text-sm font-medium">Marcar como destacado</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 p-6">
+      <h3 class="font-semibold mb-4">Inventario por talla</h3>
+      <div class="grid grid-cols-5 gap-4">
+        <% SIZES.forEach(size => { %>
+          <div class="text-center">
+            <label class="block text-sm font-semibold mb-2"><%= size %></label>
+            <input type="number" name="stock_<%= size %>" min="0" value="0" class="w-full border border-gray-300 px-2 py-2 text-sm text-center focus:outline-none focus:border-black">
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <button type="submit" class="bg-black text-white px-8 py-3 font-medium hover:bg-gray-800 transition-colors">Crear producto</button>
+      <a href="/admin/products" class="border border-gray-300 text-gray-700 px-8 py-3 font-medium hover:border-black hover:text-black transition-colors">Cancelar</a>
+    </div>
+  </form>
+</div>

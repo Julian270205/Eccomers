@@ -1,0 +1,184 @@
+<% layout = 'layouts/admin' %>
+
+<!-- Header -->
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <h1 class="font-serif text-3xl font-bold text-gray-900">Inventory Management</h1>
+    <p class="text-sm text-gray-400 mt-1">Overview of your luxury catalog &amp; stock levels.</p>
+  </div>
+  <div class="flex items-center gap-3">
+    <button class="px-4 py-2.5 border border-gray-200 bg-white text-sm text-gray-600 rounded-lg hover:border-gray-300 font-medium transition-colors">Export CSV</button>
+    <a href="/admin/products/create" class="px-4 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors">Add Product</a>
+  </div>
+</div>
+
+<div class="flex gap-5">
+  <!-- Main table -->
+  <div class="flex-1 min-w-0">
+    <!-- Filters -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-3 flex items-center gap-3 flex-wrap mb-4">
+      <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Category:</span>
+      <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:border-boutique-pink bg-gray-50">
+        <option>All Categories</option>
+        <% CATEGORIES.forEach(c => { %><option><%= c %></option><% }) %>
+      </select>
+      <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-2">Status:</span>
+      <div class="flex gap-1">
+        <button class="px-3 py-1.5 text-xs font-semibold bg-gray-900 text-white rounded-lg">All</button>
+        <button class="px-3 py-1.5 text-xs font-semibold border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1">
+          Low Stock
+          <% if (lowStock.length > 0) { %><span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full"><%= lowStock.length %></span><% } %>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50/80 border-b border-gray-100">
+          <tr>
+            <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Product</th>
+            <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Category</th>
+            <th class="px-4 py-3.5 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Stock</th>
+            <th class="px-4 py-3.5 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Sizes (XS–XL)</th>
+            <th class="px-4 py-3.5 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <% products.forEach(p => {
+            const total = p.variants.reduce((a,v)=>a+v.stock,0);
+            const isLow = total > 0 && total <= 5;
+            const isOut = total === 0;
+          %>
+            <tr class="hover:bg-gray-50/50 transition-colors">
+              <!-- Product -->
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <img src="<%= p.imageUrl || '/images/site/cat-blusa.jpg' %>" class="w-full h-full object-cover" alt="">
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-semibold text-gray-900 truncate max-w-[150px]"><%= p.name %></p>
+                    <p class="text-xs text-gray-400">SKU: LUX-<%= p.category.substring(0,2).toUpperCase() %>-<%= p.id.toString().padStart(3,'0') %></p>
+                  </div>
+                </div>
+              </td>
+              <!-- Category -->
+              <td class="px-4 py-4 text-gray-600"><%= p.category %></td>
+              <!-- Total -->
+              <td class="px-4 py-4 text-center font-semibold <%= isOut ? 'text-red-600' : isLow ? 'text-amber-600' : 'text-gray-900' %>"><%= total %></td>
+              <!-- Sizes editable -->
+              <td class="px-4 py-4">
+                <div class="flex items-center justify-center gap-1.5">
+                  <% SIZES.forEach(size => {
+                    const variant = p.variants.find(v => v.size === size);
+                  %>
+                    <% if (variant) { %>
+                      <div class="text-center">
+                        <div class="text-[9px] text-gray-400 mb-0.5"><%= size %></div>
+                        <input type="number" min="0" value="<%= variant.stock %>"
+                          class="w-9 text-center text-xs font-semibold border rounded py-1 focus:outline-none focus:border-boutique-pink transition-colors
+                            <%= variant.stock === 0 ? 'bg-red-50 border-red-200 text-red-500' : variant.stock <= 3 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'border-gray-200 text-gray-700' %>"
+                          onchange="updateStock(<%= variant.id %>, this.value, this)">
+                      </div>
+                    <% } else { %>
+                      <div class="text-center">
+                        <div class="text-[9px] text-gray-400 mb-0.5"><%= size %></div>
+                        <div class="w-9 h-7 flex items-center justify-center text-gray-300 text-xs">—</div>
+                      </div>
+                    <% } %>
+                  <% }) %>
+                </div>
+              </td>
+              <!-- Status badge -->
+              <td class="px-4 py-4 text-center">
+                <span class="px-2.5 py-1 text-xs font-semibold rounded-full
+                  <%= isOut ? 'bg-red-100 text-red-600' : isLow ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700' %>">
+                  <%= isOut ? 'Out of Stock' : isLow ? 'Low Stock' : 'In Stock' %>
+                </span>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <div class="px-5 py-3.5 border-t border-gray-100 text-xs text-gray-400">
+        Showing <%= products.length %> of <%= products.length %> products
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="w-64 flex-shrink-0 space-y-4">
+    <!-- Critical Alerts -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span class="text-sm font-semibold text-gray-800">Critical Alerts</span>
+        </div>
+        <% const criticals = lowStock.filter(v => v.stock <= 2) %>
+        <span class="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-full"><%= criticals.length %></span>
+      </div>
+      <div class="divide-y divide-gray-50 max-h-64 overflow-y-auto">
+        <% if (lowStock.length === 0) { %>
+          <p class="px-4 py-6 text-sm text-gray-400 text-center">Sin alertas ✅</p>
+        <% } else { %>
+          <% lowStock.slice(0,6).forEach(v => { %>
+            <div class="px-4 py-3">
+              <p class="text-sm font-medium text-gray-800 truncate"><%= v.product.name %></p>
+              <p class="text-xs text-gray-400">Size <%= v.size %>: <span class="<%= v.stock === 0 ? 'text-red-600 font-semibold' : 'text-amber-600 font-semibold' %>"><%= v.stock === 0 ? 'Out of Stock' : v.stock + ' left' %></span></p>
+              <% if (v.stock === 0) { %>
+                <a href="/admin/products" class="text-xs text-red-500 font-semibold hover:underline mt-0.5 block">Urgent Order →</a>
+              <% } else { %>
+                <a href="/admin/inventory" class="text-xs text-amber-600 hover:underline mt-0.5 block">Restock Now →</a>
+              <% } %>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Storage Status -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+      <h4 class="text-sm font-semibold text-gray-800 mb-3">Storage Status</h4>
+      <% const totalUnits = products.reduce((a,p)=>a+p.variants.reduce((b,v)=>b+v.stock,0),0) %>
+      <% const pct = Math.min(100, Math.round(totalUnits / 5)) %>
+      <div class="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+        <span>Main Warehouse</span>
+        <span class="font-semibold"><%= pct %>% Full</span>
+      </div>
+      <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div class="h-full rounded-full <%= pct > 80 ? 'bg-red-400' : pct > 60 ? 'bg-amber-400' : 'bg-green-400' %>" style="width:<%= pct %>%"></div>
+      </div>
+      <p class="text-xs text-gray-400 mt-2"><%= totalUnits %> unidades totales en stock</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="grid grid-cols-2 gap-2">
+      <button class="bg-white border border-gray-200 rounded-xl p-3 text-center hover:border-boutique-pink hover:bg-pink-50 transition-colors">
+        <svg class="w-5 h-5 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        <p class="text-xs font-semibold text-gray-600">Print Labels</p>
+      </button>
+      <button class="bg-white border border-gray-200 rounded-xl p-3 text-center hover:border-boutique-pink hover:bg-pink-50 transition-colors">
+        <svg class="w-5 h-5 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2.5-2.5M13 16H9m4 0h3m3-11l-3 3m0 0l-3-3m3 3V3"/></svg>
+        <p class="text-xs font-semibold text-gray-600">Supplier List</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function updateStock(variantId, stock, input) {
+  try {
+    const res = await fetch('/admin/inventory/update-stock', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ variantId, stock: parseInt(stock) })
+    });
+    const data = await res.json();
+    if (data.success) {
+      input.classList.add('ring-2', 'ring-green-400');
+      setTimeout(() => input.classList.remove('ring-2', 'ring-green-400'), 1500);
+    } else { alert('Error: ' + data.message); }
+  } catch(e) { alert('Error de conexión'); }
+}
+</script>

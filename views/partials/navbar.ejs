@@ -1,0 +1,49 @@
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <!-- Top bar -->
+  <div class="bg-black text-white text-center text-xs py-2 tracking-widest">
+    ENVÍOS A TODA COLOMBIA · CONTRAENTREGA EN CALI
+  </div>
+  <!-- Main nav -->
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="font-serif text-2xl font-bold tracking-tight text-black">
+        Jhoana Rosales <span class="text-boutique-pink">Boutique</span>
+      </a>
+      <!-- Links desktop -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/productos" class="text-sm text-gray-700 hover:text-black transition-colors tracking-wide">CATÁLOGO</a>
+        <a href="/productos?category=Vestido" class="text-sm text-gray-700 hover:text-black transition-colors tracking-wide">VESTIDOS</a>
+        <a href="/productos?category=Blusa" class="text-sm text-gray-700 hover:text-black transition-colors tracking-wide">BLUSAS</a>
+        <a href="/productos?category=Jeans" class="text-sm text-gray-700 hover:text-black transition-colors tracking-wide">JEANS</a>
+      </div>
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Search icon -->
+        <a href="/productos" class="text-gray-700 hover:text-black">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </a>
+        <% if (isAuthenticated) { %>
+          <a href="/mis-pedidos" class="text-sm text-gray-700 hover:text-black hidden md:block">Mi cuenta</a>
+          <% if (isAdmin) { %>
+            <a href="/admin" class="text-sm bg-black text-white px-3 py-1 hidden md:block hover:bg-gray-800 transition-colors">Admin</a>
+          <% } %>
+          <form action="/auth/logout" method="POST" class="hidden md:block m-0 p-0">
+            <button type="submit" class="text-sm text-gray-700 hover:text-black transition-colors bg-none border-none cursor-pointer">Cerrar sesión</button>
+          </form>
+        <% } else { %>
+          <a href="/auth/login" class="text-sm text-gray-700 hover:text-black hidden md:block">Ingresar</a>
+        <% } %>
+        <!-- Cart button -->
+        <button @click="cartOpen = true" class="relative text-gray-700 hover:text-black">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <% if (cartCount > 0) { %>
+            <span class="absolute -top-2 -right-2 bg-boutique-pink text-black text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold" id="cart-badge"><%= cartCount %></span>
+          <% } else { %>
+            <span class="absolute -top-2 -right-2 bg-boutique-pink text-black text-xs w-4 h-4 rounded-full items-center justify-center font-bold hidden" id="cart-badge">0</span>
+          <% } %>
+        </button>
+      </div>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,142 @@
+<% layout = 'layouts/admin' %>
+
+<!-- Header -->
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <h1 class="text-lg font-semibold text-gray-500">Gestión de Promociones</h1>
+    <p class="text-sm text-gray-400 mt-0.5">Central de administración para descuentos y ofertas especiales.</p>
+  </div>
+  <a href="/admin/promotions/create" class="flex items-center gap-2 px-4 py-2.5 bg-boutique-rose text-white text-sm font-semibold rounded-lg hover:bg-boutique-pink-dark transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Crear Nueva Promoción
+  </a>
+</div>
+
+<!-- Stats -->
+<%
+  const now = new Date();
+  const activePromos = promotions.filter(p => p.isActive && new Date(p.startsAt) <= now && new Date(p.endsAt) >= now);
+  const scheduledPromos = promotions.filter(p => p.isActive && new Date(p.startsAt) > now);
+  const totalDiscount = promotions.reduce((a,p) => a + (p.usedCount * parseFloat(p.value)), 0);
+%>
+<div class="grid grid-cols-3 gap-4 mb-6">
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Active Promotions</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2"><%= activePromos.length %></p>
+    <p class="text-xs text-green-600 mt-1">+<%= scheduledPromos.length %> this week</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Discount Applied</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2">$<%= Math.round(totalDiscount / 1000) %>k</p>
+    <p class="text-xs text-gray-400 mt-1">Current Month</p>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Scheduled for Q3</p>
+    <p class="text-3xl font-bold text-gray-900 mt-2"><%= String(scheduledPromos.length).padStart(2,'0') %></p>
+    <p class="text-xs text-gray-400 mt-1">Upcoming events</p>
+  </div>
+</div>
+
+<!-- Search bar -->
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 flex items-end gap-4 flex-wrap mb-5">
+  <div class="flex-1 min-w-[200px]">
+    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Buscar promociones</label>
+    <div class="relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" placeholder="Nombre, categoría o código..." class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:border-boutique-pink">
+    </div>
+  </div>
+  <div>
+    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Estado</label>
+    <select class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:border-boutique-pink">
+      <option>Todos</option><option>Activas</option><option>Programadas</option><option>Vencidas</option>
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Rango de fechas</label>
+    <div class="flex items-center gap-2 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500 cursor-pointer">
+      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Jun - Jul 2024
+    </div>
+  </div>
+</div>
+
+<!-- Promotions table -->
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50/80 border-b border-gray-100">
+      <tr>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Promotion & Category</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Value</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Duration</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usos</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-50">
+      <% promotions.forEach(promo => {
+        const isActive = promo.isActive && new Date(promo.startsAt) <= now && new Date(promo.endsAt) >= now;
+        const isScheduled = promo.isActive && new Date(promo.startsAt) > now;
+        const daysLeft = Math.ceil((new Date(promo.endsAt) - now) / (1000*60*60*24));
+      %>
+        <tr class="hover:bg-gray-50/50 transition-colors">
+          <!-- Promo + image thumbnail -->
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <img src="/images/site/cat-vestido.jpg" class="w-full h-full object-cover" alt="">
+              </div>
+              <div class="min-w-0">
+                <p class="font-semibold text-gray-900 truncate max-w-[160px]"><%= promo.name %></p>
+                <p class="text-xs text-gray-400"><%= promo.appliesTo === 'all' ? 'Storewide' : promo.appliesTo %> <% if (promo.code) { %> · <code class="bg-gray-100 px-1 rounded font-mono text-xs"><%= promo.code %></code><% } %></p>
+              </div>
+            </div>
+          </td>
+          <!-- Value -->
+          <td class="px-5 py-4 font-bold text-green-700">
+            <% if (promo.type === 'percentage') { %><%= parseFloat(promo.value) %>% OFF
+            <% } else { %><%= formatCurrency(parseFloat(promo.value)) %><% } %>
+          </td>
+          <!-- Duration -->
+          <td class="px-5 py-4">
+            <p class="text-gray-700"><%= formatDate(promo.startsAt, 'DD/MM') %> – <%= formatDate(promo.endsAt, 'DD/MM') %></p>
+            <p class="text-xs text-gray-400">
+              <% if (isActive) { %><%= daysLeft %> days remaining
+              <% } else if (isScheduled) { %>Starts in <%= Math.ceil((new Date(promo.startsAt) - now)/(1000*60*60*24)) %> days
+              <% } else { %>Expired<% } %>
+            </p>
+          </td>
+          <!-- Uses -->
+          <td class="px-5 py-4 text-gray-600"><%= promo.usedCount %> / <%= promo.maxUses || '∞' %></td>
+          <!-- Status -->
+          <td class="px-5 py-4">
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full
+              <%= isActive ? 'bg-green-100 text-green-700' : isScheduled ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500' %>">
+              <%= isActive ? 'Active' : isScheduled ? 'Scheduled' : 'Inactive' %>
+            </span>
+          </td>
+          <!-- Actions -->
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-1.5">
+              <button class="p-1.5 rounded-lg text-gray-400 hover:text-boutique-rose hover:bg-pink-50 transition-colors" title="Editar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button class="p-1.5 rounded-lg text-gray-400 hover:text-amber-500 hover:bg-amber-50 transition-colors" title="Desactivar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              </button>
+              <form action="/admin/promotions/<%= promo.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Eliminar promoción?')">
+                <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Eliminar">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (promotions.length === 0) { %>
+        <tr><td colspan="6" class="px-5 py-12 text-center text-gray-400">No hay promociones creadas</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>

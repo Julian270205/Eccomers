@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" x-data="{ cartOpen: false, mobileMenu: false }">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> | Jhoana Rosales Boutique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'boutique-pink': '#E8B4B8',
+            'boutique-pink-dark': '#D4949A',
+            'boutique-pink-light': '#F5D5D7',
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/flash-messages') %>
+  <%- include('../partials/cart-sidebar') %>
+
+  <main><%- body %></main>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/js/cart.js"></script>
+  <script src="/js/product.js"></script>
+</body>
+</html>

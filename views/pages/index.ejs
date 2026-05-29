@@ -1,0 +1,216 @@
+<% layout = 'layouts/main' %>
+
+<!-- HERO -->
+<section class="relative bg-gray-900 overflow-hidden min-h-[92vh] flex items-center">
+  <div class="absolute inset-0">
+    <img src="/images/site/hero-main.jpg" alt="Hero background" class="w-full h-full object-cover object-top">
+    <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent"></div>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-24">
+    <div class="max-w-xl">
+      <span class="inline-block text-xs tracking-widest text-boutique-pink uppercase font-semibold mb-6 border border-boutique-pink px-3 py-1.5">✦ Nueva Colección 2024</span>
+      <h1 class="font-serif text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
+        Tu estilo,<br><span class="text-boutique-pink">tu esencia.</span>
+      </h1>
+      <p class="text-gray-300 text-lg max-w-md mb-10">Moda femenina elegante y accesible. Prendas únicas para la mujer colombiana moderna.</p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/productos" class="bg-boutique-pink text-black px-8 py-4 font-semibold tracking-wide hover:bg-boutique-pink-dark transition-colors text-center">Explorar catálogo</a>
+        <a href="/productos?isFeatured=true" class="border border-white text-white px-8 py-4 font-medium tracking-wide hover:bg-white hover:text-black transition-colors text-center">Destacados</a>
+      </div>
+      <div class="flex items-center gap-8 mt-12">
+        <div class="text-white">
+          <p class="font-serif text-3xl font-bold">+200</p>
+          <p class="text-xs text-gray-400 tracking-widest uppercase">Prendas</p>
+        </div>
+        <div class="w-px h-10 bg-gray-600"></div>
+        <div class="text-white">
+          <p class="font-serif text-3xl font-bold">100%</p>
+          <p class="text-xs text-gray-400 tracking-widest uppercase">Calidad</p>
+        </div>
+        <div class="w-px h-10 bg-gray-600"></div>
+        <div class="text-white">
+          <p class="font-serif text-3xl font-bold">Cali</p>
+          <p class="text-xs text-gray-400 tracking-widest uppercase">Colombia</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="text-center mb-12">
+    <span class="text-xs tracking-widest text-boutique-pink-dark uppercase font-semibold">Colecciones</span>
+    <h2 class="font-serif text-3xl font-bold mt-2">Explorar por categoría</h2>
+    <p class="text-gray-500 mt-2">Encuentra la prenda perfecta para cada ocasión</p>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <%
+      const catLocalImgs = {
+        Vestido:   '/images/site/cat-vestido.jpg',
+        Blusa:     '/images/site/cat-blusa.jpg',
+        Jeans:     '/images/site/cat-jeans.jpg',
+        Enterizos: '/images/site/cat-enterizos.jpg'
+      };
+      const catLabels = { Vestido: 'Vestidos', Blusa: 'Blusas', Jeans: 'Jeans', Enterizos: 'Enterizos' };
+    %>
+    <% ['Vestido','Blusa','Jeans','Enterizos'].forEach(cat => { %>
+    <a href="/productos?category=<%= cat %>" class="group relative overflow-hidden bg-pink-50" style="aspect-ratio:3/4">
+      <img src="<%= catLocalImgs[cat] %>" alt="<%= catLabels[cat] %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+      <!-- Gradiente rosado -->
+      <div class="absolute inset-0 bg-gradient-to-t from-pink-900/75 via-pink-800/15 to-transparent"></div>
+      <div class="absolute inset-0 bg-pink-900/0 group-hover:bg-pink-900/10 transition-colors duration-500"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-5 z-20">
+        <p class="text-white font-serif text-xl font-semibold"><%= catLabels[cat] %></p>
+        <p class="text-pink-200 text-xs tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Ver colección →</p>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- LOOKBOOK -->
+<section class="bg-pink-50 py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <span class="text-xs tracking-widest text-boutique-pink-dark uppercase font-semibold">Editorial</span>
+      <h2 class="font-serif text-3xl font-bold mt-2">Lookbook 2024</h2>
+      <p class="text-gray-500 mt-2">Inspírate con nuestros estilos de temporada</p>
+    </div>
+    <div class="grid grid-cols-12 gap-3" style="height:580px">
+      <!-- Imagen grande izquierda -->
+      <div class="col-span-5 overflow-hidden">
+        <a href="/productos?category=Vestido" class="block w-full h-full group relative">
+          <img src="/images/site/look-1.jpg" alt="Colección Vestidos" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-pink-900/10 to-transparent group-hover:from-pink-900/40 transition-all"></div>
+          <div class="absolute bottom-6 left-6 text-white">
+            <p class="text-xs tracking-widest uppercase text-pink-200">Colección</p>
+            <p class="font-serif text-2xl font-bold">Vestidos</p>
+          </div>
+        </a>
+      </div>
+      <!-- Columna derecha -->
+      <div class="col-span-7 grid grid-rows-2 gap-3">
+        <!-- Imagen ancha superior -->
+        <div class="overflow-hidden">
+          <a href="/productos?category=Blusa" class="block w-full h-full group relative">
+            <img src="/images/site/look-2.jpg" alt="Colección Blusas" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-pink-900/10 to-transparent group-hover:from-pink-900/40 transition-all"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <p class="text-xs tracking-widest uppercase text-pink-200">Colección</p>
+              <p class="font-serif text-2xl font-bold">Blusas & Tops</p>
+            </div>
+          </a>
+        </div>
+        <!-- Dos pequeñas abajo -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="overflow-hidden">
+            <a href="/productos?category=Jeans" class="block w-full h-full group relative">
+              <img src="/images/site/look-3.jpg" alt="Colección Jeans" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-pink-900/60 to-transparent group-hover:from-pink-900/40 transition-all"></div>
+              <div class="absolute bottom-4 left-4 text-white">
+                <p class="font-serif text-lg font-bold">Jeans</p>
+              </div>
+            </a>
+          </div>
+          <div class="overflow-hidden">
+            <a href="/productos?category=Enterizos" class="block w-full h-full group relative">
+              <img src="/images/site/look-4.jpg" alt="Colección Enterizos" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-pink-900/60 to-transparent group-hover:from-pink-900/40 transition-all"></div>
+              <div class="absolute bottom-4 left-4 text-white">
+                <p class="font-serif text-lg font-bold">Enterizos</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-8">
+      <a href="/productos" class="inline-block border border-pink-800 text-pink-800 px-10 py-3 text-sm font-medium tracking-widest uppercase hover:bg-pink-800 hover:text-white transition-colors">Ver colección completa</a>
+    </div>
+  </div>
+</section>
+
+<!-- BANNER 3 COLECCIONES -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a href="/productos?category=Vestido" class="group relative overflow-hidden" style="height:420px">
+      <img src="/images/site/banner-vestidos.jpg" alt="Vestidos de temporada" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+      <div class="absolute inset-0 bg-gradient-to-t from-pink-900/70 via-pink-900/10 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <p class="text-pink-200 text-xs tracking-widest uppercase font-semibold mb-1">Nueva llegada</p>
+        <h3 class="font-serif text-2xl font-bold text-white">Vestidos de Temporada</h3>
+        <span class="mt-3 inline-block text-white text-xs border-b border-white/50 pb-0.5 group-hover:border-pink-300 group-hover:text-pink-200 transition-colors">Explorar →</span>
+      </div>
+    </a>
+    <a href="/productos?category=Blusa" class="group relative overflow-hidden" style="height:420px">
+      <img src="/images/site/banner-blusas.jpg" alt="Blusas elegantes" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700">
+      <div class="absolute inset-0 bg-gradient-to-t from-pink-900/70 via-pink-900/10 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <p class="text-pink-200 text-xs tracking-widest uppercase font-semibold mb-1">Tendencia</p>
+        <h3 class="font-serif text-2xl font-bold text-white">Blusas Elegantes</h3>
+        <span class="mt-3 inline-block text-white text-xs border-b border-white/50 pb-0.5 group-hover:border-pink-300 group-hover:text-pink-200 transition-colors">Explorar →</span>
+      </div>
+    </a>
+    <a href="/productos?category=Enterizos" class="group relative overflow-hidden" style="height:420px">
+      <img src="/images/site/banner-enterizos.jpg" alt="Enterizos y jumpsuits" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+      <div class="absolute inset-0 bg-gradient-to-t from-pink-900/70 via-pink-900/10 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <p class="text-pink-200 text-xs tracking-widest uppercase font-semibold mb-1">Lo más buscado</p>
+        <h3 class="font-serif text-2xl font-bold text-white">Enterizos & Jumpsuits</h3>
+        <span class="mt-3 inline-block text-white text-xs border-b border-white/50 pb-0.5 group-hover:border-pink-300 group-hover:text-pink-200 transition-colors">Explorar →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="bg-boutique-pink-light py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-12">
+      <div>
+        <h2 class="font-serif text-3xl font-bold">Productos Destacados</h2>
+        <p class="text-gray-600 mt-1">Lo más elegante de nuestra colección</p>
+      </div>
+      <a href="/productos" class="text-sm font-medium border-b border-black pb-0.5 hover:text-gray-600 transition-colors hidden sm:block">Ver todos →</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      <% featured.forEach(product => { %>
+        <a href="/productos/<%= product.slug %>" class="group bg-white">
+          <div class="relative overflow-hidden aspect-[3/4]">
+            <% if (product.priceInfo.hasDiscount) { %>
+              <span class="absolute top-3 left-3 bg-boutique-pink text-xs font-bold px-2 py-1 z-10">OFERTA</span>
+            <% } %>
+            <img src="<%= product.imageUrl || '/images/site/cat-blusa.jpg' %>" alt="<%= product.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute bottom-0 inset-x-0 bg-black text-white py-3 text-center text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Agregar al carrito</div>
+          </div>
+          <div class="p-4">
+            <p class="text-xs text-gray-500 tracking-wide uppercase mb-1"><%= product.category %></p>
+            <h3 class="font-medium text-gray-900 truncate"><%= product.name %></h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="font-semibold"><%= formatCurrency(product.priceInfo.finalPrice) %></span>
+              <% if (product.priceInfo.hasDiscount) { %>
+                <span class="text-sm text-gray-400 line-through"><%= formatCurrency(product.priceInfo.originalPrice) %></span>
+              <% } %>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- LOYALTY BANNER -->
+<section class="bg-black py-20">
+  <div class="max-w-4xl mx-auto px-4 text-center">
+    <div class="w-16 h-0.5 bg-boutique-pink mx-auto mb-8"></div>
+    <h2 class="font-serif text-4xl font-bold text-white mb-4">Programa Puntos Boutique</h2>
+    <p class="text-gray-400 text-lg mb-8">Acumula puntos con cada compra. 1 punto por cada $10.000 COP.<br>Canjéalos por descuentos exclusivos.</p>
+    <% if (!isAuthenticated) { %>
+      <a href="/auth/register" class="inline-block bg-boutique-pink text-black px-8 py-4 font-medium hover:bg-boutique-pink-dark transition-colors">Crear cuenta gratis</a>
+    <% } else { %>
+      <a href="/mis-pedidos" class="inline-block bg-boutique-pink text-black px-8 py-4 font-medium hover:bg-boutique-pink-dark transition-colors">Ver mis puntos</a>
+    <% } %>
+  </div>
+</section>

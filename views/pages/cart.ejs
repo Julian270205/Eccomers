@@ -1,0 +1,51 @@
+<% layout = 'layouts/main' %>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="font-serif text-4xl font-bold mb-10">Mi Carrito</h1>
+  <% if (cart.items.length === 0) { %>
+    <div class="text-center py-24 border border-dashed border-gray-300">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      <p class="text-gray-500 text-lg mb-4">Tu carrito está vacío</p>
+      <a href="/productos" class="bg-black text-white px-8 py-3 font-medium hover:bg-gray-800 transition-colors">Explorar catálogo</a>
+    </div>
+  <% } else { %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-2 space-y-4">
+        <% cart.items.forEach(item => { %>
+          <div class="flex gap-6 p-4 border border-gray-200 bg-white" id="cart-item-<%= item.id || item.variantId %>">
+            <img src="<%= item.product?.imageUrl || item.imageUrl || 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&q=80' %>" class="w-24 h-32 object-cover flex-shrink-0" alt="">
+            <div class="flex-1 min-w-0">
+              <h3 class="font-medium text-gray-900"><%= item.product?.name || item.productName %></h3>
+              <p class="text-sm text-gray-500 mt-1">Talla: <strong><%= item.variant?.size || item.size %></strong></p>
+              <p class="text-sm font-semibold mt-2"><%= formatCurrency(item.effectivePrice) %></p>
+              <div class="flex items-center gap-4 mt-3">
+                <div class="flex border border-gray-300">
+                  <button class="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-100">−</button>
+                  <span class="w-8 text-center flex items-center justify-center text-sm"><%= item.quantity %></span>
+                  <button class="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-100">+</button>
+                </div>
+                <button class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold"><%= formatCurrency(item.effectivePrice * item.quantity) %></p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+      <div class="lg:col-span-1">
+        <div class="bg-gray-50 border border-gray-200 p-6 sticky top-24">
+          <h2 class="font-semibold text-lg mb-4">Resumen del pedido</h2>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between"><span class="text-gray-600">Subtotal (<%= cart.itemCount %> items)</span><span><%= formatCurrency(cart.subtotal) %></span></div>
+            <div class="flex justify-between"><span class="text-gray-600">Envío</span><span class="text-boutique-pink-dark font-medium">Se coordina por WhatsApp</span></div>
+          </div>
+          <div class="border-t border-gray-300 mt-4 pt-4 flex justify-between font-semibold">
+            <span>Total estimado</span><span><%= formatCurrency(cart.subtotal) %></span>
+          </div>
+          <a href="/checkout" class="block w-full bg-black text-white text-center py-4 font-medium hover:bg-gray-800 transition-colors mt-6">Proceder al checkout</a>
+          <a href="/productos" class="block w-full text-center text-sm text-gray-500 hover:text-black py-3">Seguir comprando</a>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>

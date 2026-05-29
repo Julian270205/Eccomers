@@ -1,0 +1,80 @@
+<% layout = 'layouts/admin' %>
+<div class="max-w-3xl">
+  <a href="/admin/orders" class="text-sm text-gray-500 hover:text-black mb-6 inline-block">← Volver a pedidos</a>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white border border-gray-200 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Estado pedido</p>
+      <p class="font-semibold capitalize"><%= order.status.replace(/_/g,' ') %></p>
+    </div>
+    <div class="bg-white border border-gray-200 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Pago</p>
+      <p class="font-semibold capitalize"><%= order.paymentStatus %></p>
+    </div>
+    <div class="bg-white border border-gray-200 p-4">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total</p>
+      <p class="font-semibold"><%= formatCurrency(parseFloat(order.total)) %></p>
+    </div>
+  </div>
+
+  <!-- Confirm WhatsApp -->
+  <% if (order.status === 'pending_whatsapp_confirmation' && order.confirmToken) { %>
+    <div class="bg-yellow-50 border border-yellow-200 p-4 mb-6 flex items-center justify-between gap-4">
+      <div>
+        <p class="font-semibold text-yellow-800">⏳ Pendiente confirmación WhatsApp</p>
+        <p class="text-sm text-yellow-700 mt-1">Confirma el pago para actualizar el estado del pedido.</p>
+      </div>
+      <a href="/admin/orders/<%= order.id %>/confirm?token=<%= order.confirmToken %>" class="bg-green-600 text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition-colors flex-shrink-0">✅ Marcar como pagado</a>
+    </div>
+  <% } %>
+
+  <!-- Items -->
+  <div class="bg-white border border-gray-200 p-6 mb-6">
+    <h3 class="font-semibold mb-4">Productos del pedido</h3>
+    <div class="space-y-3">
+      <% order.items.forEach(item => { %>
+        <div class="flex gap-4 items-center">
+          <img src="<%= item.product?.imageUrl || 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=50' %>" class="w-12 h-14 object-cover" alt="">
+          <div class="flex-1">
+            <p class="font-medium text-sm"><%= item.productName %></p>
+            <p class="text-xs text-gray-500">Talla: <%= item.size %> · x<%= item.quantity %></p>
+          </div>
+          <p class="font-semibold text-sm"><%= formatCurrency(parseFloat(item.unitPrice) * item.quantity) %></p>
+        </div>
+      <% }) %>
+    </div>
+    <div class="border-t border-gray-200 mt-4 pt-4 space-y-1 text-sm">
+      <div class="flex justify-between"><span class="text-gray-600">Subtotal</span><span><%= formatCurrency(parseFloat(order.subtotal)) %></span></div>
+      <% if (parseFloat(order.discountAmount) > 0) { %>
+        <div class="flex justify-between text-green-600"><span>Descuento</span><span>-<%= formatCurrency(parseFloat(order.discountAmount)) %></span></div>
+      <% } %>
+      <div class="flex justify-between font-bold border-t pt-2 mt-2"><span>Total</span><span><%= formatCurrency(parseFloat(order.total)) %></span></div>
+    </div>
+  </div>
+
+  <!-- Shipping -->
+  <div class="bg-white border border-gray-200 p-6 mb-6">
+    <h3 class="font-semibold mb-4">Datos de envío</h3>
+    <dl class="grid grid-cols-2 gap-3 text-sm">
+      <div><dt class="text-gray-500">Nombre</dt><dd class="font-medium"><%= order.shippingName %></dd></div>
+      <div><dt class="text-gray-500">Email</dt><dd class="font-medium"><%= order.shippingEmail %></dd></div>
+      <div><dt class="text-gray-500">Teléfono</dt><dd class="font-medium"><%= order.shippingPhone %></dd></div>
+      <div><dt class="text-gray-500">Ciudad</dt><dd class="font-medium"><%= order.shippingCity %></dd></div>
+      <div class="col-span-2"><dt class="text-gray-500">Dirección</dt><dd class="font-medium"><%= order.shippingAddress %></dd></div>
+      <% if (order.shippingNotes) { %><div class="col-span-2"><dt class="text-gray-500">Notas</dt><dd><%= order.shippingNotes %></dd></div><% } %>
+    </dl>
+  </div>
+
+  <!-- Update Status -->
+  <div class="bg-white border border-gray-200 p-6">
+    <h3 class="font-semibold mb-4">Actualizar estado</h3>
+    <form action="/admin/orders/<%= order.id %>/status" method="POST" class="flex gap-3">
+      <select name="status" class="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+        <% Object.entries(ORDER_STATUS).forEach(([key, val]) => { %>
+          <option value="<%= val %>" <%= order.status === val ? 'selected' : '' %>><%= val.replace(/_/g,' ') %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="bg-black text-white px-6 py-2 text-sm font-medium hover:bg-gray-800 transition-colors">Actualizar</button>
+    </form>
+  </div>
+</div>

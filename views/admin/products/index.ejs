@@ -1,0 +1,119 @@
+<% layout = 'layouts/admin' %>
+
+<!-- Header -->
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <h1 class="font-serif text-3xl font-bold text-gray-900">Product Catalog</h1>
+    <p class="text-sm text-gray-400 mt-1">Curating luxury, managing elegance.</p>
+  </div>
+  <a href="/admin/products/create" class="flex items-center gap-2 px-4 py-2.5 bg-boutique-rose text-white text-sm font-semibold rounded-lg hover:bg-boutique-pink-dark transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Add New Product
+  </a>
+</div>
+
+<!-- Filters bar -->
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-3.5 flex items-center gap-3 flex-wrap mb-5">
+  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Category:</span>
+  <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:border-boutique-pink bg-gray-50">
+    <option>All Categories</option>
+    <option>Vestido</option><option>Blusa</option><option>Jeans</option>
+    <option>Falda</option><option>Enterizos</option><option>Camisa</option><option>Shorts</option><option>Pantalones</option>
+  </select>
+  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-2">Price:</span>
+  <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:border-boutique-pink bg-gray-50">
+    <option>Any Price</option><option>Menor a $100k</option><option>$100k - $200k</option><option>Mayor a $200k</option>
+  </select>
+  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-2">Stock:</span>
+  <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:border-boutique-pink bg-gray-50">
+    <option>All Stock Status</option><option>In Stock</option><option>Low Stock</option><option>Out of Stock</option>
+  </select>
+  <button class="ml-auto flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+    More Filters
+  </button>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50/80 border-b border-gray-100">
+      <tr>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Image</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Product Name</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Category</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Price</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Stock Summary</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+        <th class="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-50">
+      <% products.forEach(p => { %>
+        <% const totalStock = p.variants.reduce((a,v)=>a+v.stock,0) %>
+        <tr class="hover:bg-gray-50/50 transition-colors">
+          <!-- Image -->
+          <td class="px-5 py-4">
+            <div class="w-12 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              <img src="<%= p.imageUrl || '/images/site/cat-blusa.jpg' %>" class="w-full h-full object-cover" alt="<%= p.name %>">
+            </div>
+          </td>
+          <!-- Name + SKU -->
+          <td class="px-5 py-4">
+            <p class="font-semibold text-gray-900 max-w-[180px] truncate"><%= p.name %></p>
+            <p class="text-xs text-gray-400 mt-0.5">SKU: JRB-<%= p.id %>-<%= p.category.substring(0,2).toUpperCase() %></p>
+          </td>
+          <!-- Category -->
+          <td class="px-5 py-4 text-gray-600"><%= p.category %></td>
+          <!-- Price -->
+          <td class="px-5 py-4 font-semibold text-gray-900"><%= formatCurrency(parseFloat(p.basePrice)) %></td>
+          <!-- Stock by size -->
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-1 flex-wrap">
+              <% ['XS','S','M','L','XL'].forEach(sz => {
+                const v = p.variants.find(vv => vv.size === sz);
+                const stock = v ? v.stock : null;
+              %>
+                <div class="text-center">
+                  <div class="text-[10px] text-gray-400 font-medium"><%= sz %></div>
+                  <div class="w-7 h-6 flex items-center justify-center text-xs font-semibold rounded
+                    <%= stock === null ? 'text-gray-200' : stock === 0 ? 'bg-red-50 text-red-400' : stock <= 3 ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600' %>">
+                    <%= stock !== null ? stock : '—' %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </td>
+          <!-- Status -->
+          <td class="px-5 py-4">
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full <%= p.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' %>">
+              <%= p.isActive ? 'Active' : 'Draft' %>
+            </span>
+          </td>
+          <!-- Actions -->
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-2">
+              <a href="/admin/products/<%= p.id %>/edit" class="p-1.5 rounded-lg text-gray-400 hover:text-boutique-rose hover:bg-pink-50 transition-colors" title="Editar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </a>
+              <a href="/productos/<%= p.slug %>" target="_blank" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors" title="Ver en tienda">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <form action="/admin/products/<%= p.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Desactivar este producto?')">
+                <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Desactivar">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (products.length === 0) { %>
+        <tr><td colspan="7" class="px-5 py-12 text-center text-gray-400">No hay productos registrados</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+  <div class="px-5 py-3.5 border-t border-gray-100 text-xs text-gray-400">
+    Showing 1 to <%= products.length %> of <%= products.length %> results
+  </div>
+</div>

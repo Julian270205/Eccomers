@@ -1,0 +1,48 @@
+<% layout = 'layouts/admin' %>
+<div class="max-w-3xl">
+  <a href="/admin/products" class="text-sm text-gray-500 hover:text-black mb-6 inline-block">← Volver a productos</a>
+  <form action="/admin/products/<%= product.id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <div class="bg-white border border-gray-200 p-6 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">Nombre *</label>
+          <input type="text" name="name" value="<%= product.name %>" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Categoría *</label>
+          <select name="category" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+            <% CATEGORIES.forEach(c => { %><option value="<%= c %>" <%= product.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Precio base (COP) *</label>
+        <input type="number" name="basePrice" value="<%= parseFloat(product.basePrice) %>" min="0" step="1000" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Descripción</label>
+        <textarea name="description" rows="4" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black resize-none"><%= product.description || '' %></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">URL de imagen actual</label>
+        <input type="url" name="imageUrl" value="<%= product.imageUrl || '' %>" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-black">
+      </div>
+      <div>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="isFeatured" value="true" <%= product.isFeatured ? 'checked' : '' %> class="w-4 h-4">
+          <span class="text-sm font-medium">Destacado</span>
+        </label>
+      </div>
+      <div>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="isActive" value="true" <%= product.isActive ? 'checked' : '' %> class="w-4 h-4">
+          <span class="text-sm font-medium">Activo</span>
+        </label>
+      </div>
+    </div>
+    <div class="flex gap-4">
+      <button type="submit" class="bg-black text-white px-8 py-3 font-medium hover:bg-gray-800 transition-colors">Guardar cambios</button>
+      <a href="/admin/products" class="border border-gray-300 px-8 py-3 font-medium hover:border-black transition-colors">Cancelar</a>
+    </div>
+  </form>
+</div>

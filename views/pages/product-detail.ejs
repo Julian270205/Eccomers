@@ -1,0 +1,153 @@
+<% layout = 'layouts/main' %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="productDetail()">
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
+    <a href="/" class="hover:text-black">Inicio</a> /
+    <a href="/productos" class="hover:text-black">Catálogo</a> /
+    <a href="/productos?category=<%= product.category %>" class="hover:text-black"><%= product.category %>s</a> /
+    <span class="text-gray-900"><%= product.name %></span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+    <!-- Image -->
+    <div class="aspect-[3/4] bg-gray-100 overflow-hidden">
+      <img src="<%= product.imageUrl || 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80' %>" alt="<%= product.name %>" class="w-full h-full object-cover">
+    </div>
+
+    <!-- Info -->
+    <div class="flex flex-col">
+      <p class="text-xs tracking-widest uppercase text-boutique-pink-dark font-semibold mb-3"><%= product.category %></p>
+      <h1 class="font-serif text-4xl font-bold text-black mb-4"><%= product.name %></h1>
+
+      <!-- Price -->
+      <div class="flex items-center gap-4 mb-6">
+        <% if (product.priceInfo.hasDiscount) { %>
+          <span class="text-3xl font-bold text-black"><%= formatCurrency(product.priceInfo.finalPrice) %></span>
+          <span class="text-xl text-gray-400 line-through"><%= formatCurrency(product.priceInfo.originalPrice) %></span>
+          <span class="bg-boutique-pink text-black text-sm font-bold px-3 py-1"><%= product.priceInfo.discountLabel %></span>
+        <% } else { %>
+          <span class="text-3xl font-bold text-black"><%= formatCurrency(product.priceInfo.finalPrice) %></span>
+        <% } %>
+      </div>
+
+      <p class="text-gray-600 leading-relaxed mb-8"><%= product.description || '' %></p>
+
+      <!-- Size selector -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-sm font-semibold tracking-wide">TALLA</label>
+          <button class="text-xs text-gray-500 underline">Guía de tallas</button>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <% product.variants.forEach(variant => { %>
+            <% const inStock = variant.stock > 0 %>
+            <button
+              @click="<%= inStock ? `selectSize(${variant.id}, '${variant.size}', ${variant.stock}, ${product.priceInfo.finalPrice})` : '' %>"
+              :class="selectedVariantId === <%= variant.id %> ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:border-black'"
+              class="w-14 h-14 border text-sm font-medium transition-colors relative <%= !inStock ? 'opacity-40 cursor-not-allowed' : '' %>"
+              <%= !inStock ? 'disabled' : '' %>>
+              <%= variant.size %>
+              <% if (!inStock) { %>
+                <span class="absolute inset-0 flex items-center justify-center">
+                  <span class="w-full h-px bg-gray-400 absolute transform rotate-45"></span>
+                </span>
+              <% } %>
+            </button>
+          <% }) %>
+        </div>
+        <p x-show="selectedSize" class="mt-2 text-sm text-gray-600">Talla seleccionada: <span x-text="selectedSize" class="font-semibold"></span> (<span x-text="stockLeft"></span> disponibles)</p>
+        <p x-show="!selectedSize" class="mt-2 text-xs text-gray-400">Selecciona una talla</p>
+      </div>
+
+      <!-- Quantity -->
+      <div class="mb-8">
+        <label class="text-sm font-semibold tracking-wide block mb-3">CANTIDAD</label>
+        <div class="flex items-center gap-4">
+          <div class="flex border border-gray-300">
+            <button @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors">−</button>
+            <span x-text="qty" class="w-12 text-center flex items-center justify-center text-sm font-medium"></span>
+            <button @click="qty = Math.min(stockLeft || 1, qty + 1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button @click="addToCart()" :disabled="!selectedVariantId" class="w-full bg-black text-white py-4 font-medium tracking-wide hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4">
+        <span x-show="!adding">Agregar al carrito</span>
+        <span x-show="adding">Agregando...</span>
+      </button>
+      <p x-show="message" x-text="message" class="text-center text-sm text-green-600 font-medium"></p>
+
+      <!-- Meta -->
+      <div class="border-t border-gray-200 pt-6 mt-6 space-y-3">
+        <div class="flex items-center gap-3 text-sm text-gray-600">
+          <svg class="w-5 h-5 text-boutique-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          Contraentrega disponible en Cali
+        </div>
+        <div class="flex items-center gap-3 text-sm text-gray-600">
+          <svg class="w-5 h-5 text-boutique-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+          Acumula puntos con esta compra
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related products -->
+  <% if (related.length > 0) { %>
+    <section>
+      <h2 class="font-serif text-2xl font-bold mb-8">También te puede gustar</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <% related.forEach(p => { %>
+          <a href="/productos/<%= p.slug %>" class="group">
+            <div class="aspect-[3/4] overflow-hidden bg-gray-100 mb-3">
+              <img src="<%= p.imageUrl || 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=300&q=80' %>" alt="<%= p.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <p class="font-medium text-sm"><%= p.name %></p>
+            <p class="text-sm text-gray-600"><%= formatCurrency(p.priceInfo.finalPrice) %></p>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+</div>
+
+<script>
+function productDetail() {
+  return {
+    selectedVariantId: null,
+    selectedSize: '',
+    stockLeft: 0,
+    qty: 1,
+    adding: false,
+    message: '',
+    selectSize(variantId, size, stock, price) {
+      this.selectedVariantId = variantId;
+      this.selectedSize = size;
+      this.stockLeft = stock;
+      this.qty = 1;
+    },
+    async addToCart() {
+      if (!this.selectedVariantId) return;
+      this.adding = true;
+      this.message = '';
+      try {
+        const res = await fetch('/carrito/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: <%= product.id %>, variantId: this.selectedVariantId, quantity: this.qty }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          this.message = '¡Producto agregado al carrito!';
+          document.getElementById('cart-badge').classList.remove('hidden');
+          document.getElementById('cart-badge').textContent = data.itemCount;
+        } else {
+          this.message = data.message || 'Error al agregar';
+        }
+      } catch (e) { this.message = 'Error de conexión'; }
+      this.adding = false;
+    }
+  }
+}
+</script>
