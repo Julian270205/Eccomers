@@ -2,8 +2,17 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const uploadDir = process.env.UPLOAD_PATH || './public/images/products';
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// En producción (Vercel) el sistema de archivos es de solo lectura excepto /tmp
+const isProduction = process.env.NODE_ENV === 'production';
+const uploadDir = isProduction
+  ? '/tmp/uploads'
+  : (process.env.UPLOAD_PATH || './public/images/products');
+
+try {
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch (e) {
+  console.warn('No se pudo crear directorio de uploads:', e.message);
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
