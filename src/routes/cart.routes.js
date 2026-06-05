@@ -2,6 +2,7 @@ const router = require('express').Router();
 const ctrl = require('../controllers/cart.controller');
 
 router.get('/', ctrl.showCart);
+router.get('/json', ctrl.getCartJson);
 router.post('/add', ctrl.addToCart);
 router.put('/update', ctrl.updateCart);
 router.delete('/remove/:itemId', ctrl.removeFromCart);

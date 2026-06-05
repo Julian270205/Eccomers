@@ -1,0 +1,42 @@
+# ── Entorno de producción en AWS EC2 ─────────────────────────
+# Uso: docker-compose -f docker-compose.prod.yml up -d
+# Requiere: .env con las variables de producción configuradas
+# La base de datos es RDS (externa) — NO se levanta MySQL aquí
+
+version: '3.9'
+
+services:
+
+  # ── Aplicación Node.js ───────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production    # imagen optimizada multi-stage
+    image: jhoana-boutique:latest
+    container_name: jhoana_app_prod
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persistir imágenes subidas (si no usas Cloudinary)
+      - product_images:/app/public/images/products
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - boutique_network
+
+volumes:
+  product_images:
+    driver: local
+
+networks:
+  boutique_network:
+    driver: bridge

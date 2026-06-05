@@ -1,0 +1,65 @@
+# ── Entorno de desarrollo local ───────────────────────────────
+# Uso: docker-compose up --build
+# Incluye MySQL local para desarrollo sin necesidad de instalar nada
+
+version: '3.9'
+
+services:
+
+  # ── Base de datos MySQL ──────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: jhoana_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-j1u2l3i4a5n}
+      MYSQL_DATABASE: ${DB_NAME:-jhoana_boutique}
+      MYSQL_USER: ${DB_USER:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-j1u2l3i4a5n}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-j1u2l3i4a5n}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - boutique_network
+
+  # ── Aplicación Node.js ───────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder   # usa el stage builder para dev (incluye devDeps)
+    container_name: jhoana_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    ports:
+      - "3000:3000"
+    volumes:
+      # Hot-reload del código fuente (excepto node_modules)
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: ["node", "server.js"]
+    networks:
+      - boutique_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  boutique_network:
+    driver: bridge

@@ -12,6 +12,25 @@ const showCart = async (req, res) => {
   } catch (err) { console.error(err); res.redirect('/'); }
 };
 
+// JSON endpoint for the cart sidebar
+const getCartJson = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      const sessionCart = req.session.cart || [];
+      return res.json({
+        success: true,
+        items: sessionCart,
+        subtotal: sessionCart.reduce((a, i) => a + (i.effectivePrice * i.quantity), 0),
+        itemCount: sessionCart.reduce((a, i) => a + i.quantity, 0),
+      });
+    }
+    const cart = await cartService.getCart(req.session.user.id);
+    return res.json({ success: true, ...cart });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 const addToCart = async (req, res) => {
   try {
     const { productId, variantId, quantity = 1 } = req.body;
@@ -38,7 +57,16 @@ const addToCart = async (req, res) => {
 const updateCart = async (req, res) => {
   try {
     const { itemId, quantity } = req.body;
-    if (!req.session.user) return res.json({ success: true });
+    if (!req.session.user) {
+      // Fix: actually update the guest session cart
+      const sessionCart = req.session.cart || [];
+      const item = sessionCart.find(i => i.variantId === parseInt(itemId));
+      if (item) item.quantity = parseInt(quantity);
+      req.session.cart = sessionCart;
+      const subtotal = sessionCart.reduce((a, i) => a + (i.effectivePrice * i.quantity), 0);
+      const itemCount = sessionCart.reduce((a, i) => a + i.quantity, 0);
+      return res.json({ success: true, subtotal, itemCount });
+    }
     const cart = await cartService.updateCartItem(req.session.user.id, itemId, quantity);
     res.json({ success: true, subtotal: cart.subtotal, itemCount: cart.itemCount });
   } catch (err) { res.status(400).json({ success: false, message: err.message }); }
@@ -53,4 +81,4 @@ const removeFromCart = async (req, res) => {
   } catch (err) { res.status(400).json({ success: false, message: err.message }); }
 };
 
-module.exports = { showCart, addToCart, updateCart, removeFromCart };
+module.exports = { showCart, getCartJson, addToCart, updateCart, removeFromCart };
