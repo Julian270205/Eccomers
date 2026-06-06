@@ -64,12 +64,14 @@
       <div class="mb-8">
         <label class="text-sm font-semibold tracking-wide block mb-3">CANTIDAD</label>
         <div class="flex items-center gap-4">
-          <div class="flex border border-gray-300">
-            <button @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors">−</button>
+          <div class="flex border" :class="selectedVariantId ? 'border-gray-300' : 'border-gray-200 opacity-50'">
+            <button @click="qty = Math.max(1, qty - 1)" :disabled="!selectedVariantId" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:cursor-not-allowed disabled:hover:bg-transparent">−</button>
             <span x-text="qty" class="w-12 text-center flex items-center justify-center text-sm font-medium"></span>
-            <button @click="qty = Math.min(stockLeft || 1, qty + 1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors">+</button>
+            <button @click="qty = Math.min(stockLeft, qty + 1)" :disabled="!selectedVariantId" class="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:cursor-not-allowed disabled:hover:bg-transparent">+</button>
           </div>
         </div>
+        <p x-show="!selectedVariantId" class="mt-2 text-xs text-gray-400">Selecciona una talla para elegir la cantidad</p>
+        <p x-show="selectedVariantId" class="mt-2 text-xs text-gray-500">Mínimo: 1 · Máximo: <span x-text="stockLeft"></span> disponibles</p>
       </div>
 
       <!-- CTA -->

@@ -29,4 +29,12 @@ const updateItem = (id, quantity) => prisma.cartItem.update({ where: { id }, dat
 const removeItem = (id) => prisma.cartItem.delete({ where: { id } });
 const clearCart = (cartId) => prisma.cartItem.deleteMany({ where: { cartId } });
 
-module.exports = { findByUserId, getOrCreate, addItem, updateItem, removeItem, clearCart };
+const getItemCount = async (userId) => {
+  const result = await prisma.cartItem.aggregate({
+    _sum: { quantity: true },
+    where: { cart: { userId: parseInt(userId) } },
+  });
+  return result._sum.quantity || 0;
+};
+
+module.exports = { findByUserId, getOrCreate, addItem, updateItem, removeItem, clearCart, getItemCount };

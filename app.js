@@ -10,6 +10,7 @@ const { sessionConfig } = require('./src/config/session');
 const { httpLogger } = require('./src/utils/logger');
 const { ROLES } = require('./src/utils/constants');
 const { formatCurrency, formatDate } = require('./src/utils/helpers');
+const cartRepo = require('./src/repositories/cart.repository');
 
 // Routes
 const indexRoutes = require('./src/routes/index');
@@ -65,14 +66,19 @@ app.use(session(sessionConfig));
 app.use(flash());
 
 // ── Global Template Locals ────────────────────────────────────
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.isAdmin = req.session.user?.role === ROLES.ADMIN;
   res.locals.isAuthenticated = !!req.session.user;
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   res.locals.info = req.flash('info');
-  res.locals.cartCount = req.session.cart?.reduce((acc, i) => acc + i.quantity, 0) || 0;
+  if (req.session.user) {
+    try { res.locals.cartCount = await cartRepo.getItemCount(req.session.user.id); }
+    catch { res.locals.cartCount = 0; }
+  } else {
+    res.locals.cartCount = req.session.cart?.reduce((acc, i) => acc + i.quantity, 0) || 0;
+  }
   res.locals.formatCurrency = formatCurrency;
   res.locals.formatDate = formatDate;
   next();
