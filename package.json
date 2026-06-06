@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "build:css": "npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch",
     "build:css:prod": "npx tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
-    "postinstall": "npx prisma generate && npm run build:css:prod",
+    "postinstall": "npx prisma generate && npm run build:css:prod && cp node_modules/alpinejs/dist/cdn.min.js public/js/alpine.min.js",
     "vercel-build": "npx prisma generate && npm run build:css:prod",
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
