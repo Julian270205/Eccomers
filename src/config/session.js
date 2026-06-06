@@ -8,6 +8,10 @@ const sessionStore = new MySQLStore({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'jhoana_boutique',
   createDatabaseTable: true,
+  // Límites para serverless — evitar conexiones colgadas en Vercel
+  connectionLimit: 2,
+  connectTimeout: 5000,
+  acquireTimeout: 5000,
   schema: {
     tableName: 'sessions',
     columnNames: {
@@ -16,6 +20,11 @@ const sessionStore = new MySQLStore({
       data: 'data',
     },
   },
+});
+
+// Evitar que un error de conexión crashee el proceso en producción
+sessionStore.on('error', function (error) {
+  console.error('❌ Session store error:', error.message);
 });
 
 const sessionConfig = {
