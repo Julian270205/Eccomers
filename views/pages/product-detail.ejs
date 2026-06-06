@@ -140,8 +140,12 @@ function productDetail() {
         const data = await res.json();
         if (data.success) {
           this.message = '¡Producto agregado al carrito!';
-          document.getElementById('cart-badge').classList.remove('hidden');
-          document.getElementById('cart-badge').textContent = data.itemCount;
+          // Actualizar badge
+          if (window.Cart) window.Cart.updateBadge(data.itemCount);
+          // Abrir sidebar via evento global (capturado por @cart:open.window en <html>)
+          window.dispatchEvent(new CustomEvent('cart:open'));
+          // Recargar contenido del sidebar
+          if (window.Cart) window.Cart.loadSidebar();
         } else {
           this.message = data.message || 'Error al agregar';
         }
