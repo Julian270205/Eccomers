@@ -6,7 +6,6 @@ const helmet = require('helmet');
 const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
-const csrf = require('csurf');
 const { sessionConfig } = require('./src/config/session');
 const { httpLogger } = require('./src/utils/logger');
 const { ROLES } = require('./src/utils/constants');
@@ -22,6 +21,10 @@ const orderRoutes = require('./src/routes/order.routes');
 const adminRoutes = require('./src/routes/admin/index');
 
 const app = express();
+
+// ── Trust Proxy (requerido para Vercel / cualquier proxy reverso) ─
+// Sin esto, req.secure = false en HTTPS y las cookies de sesión no funcionan
+app.set('trust proxy', 1);
 
 // ── Security ──────────────────────────────────────────────────
 app.use(helmet({
@@ -60,9 +63,6 @@ app.use(session(sessionConfig));
 
 // ── Flash Messages ────────────────────────────────────────────
 app.use(flash());
-
-// ── CSRF Protection ───────────────────────────────────────────
-const csrfProtection = csrf({ cookie: false });
 
 // ── Global Template Locals ────────────────────────────────────
 app.use((req, res, next) => {

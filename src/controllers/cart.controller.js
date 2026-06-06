@@ -49,8 +49,12 @@ const addToCart = async (req, res) => {
     if (existing) existing.quantity += parseInt(quantity);
     else sessionCart.push({ productId: parseInt(productId), variantId: parseInt(variantId), quantity: parseInt(quantity), effectivePrice: unitPrice, productName: product.name, size: variant.size, imageUrl: product.imageUrl });
     req.session.cart = sessionCart;
-    const count = sessionCart.reduce((a,i)=>a+i.quantity,0);
-    return res.json({ success: true, message: 'Agregado al carrito', itemCount: count });
+    // Guardar sesión explícitamente (crítico en serverless para que persista antes de responder)
+    return req.session.save((err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Error guardando sesión' });
+      const count = sessionCart.reduce((a,i)=>a+i.quantity,0);
+      return res.json({ success: true, message: 'Agregado al carrito', itemCount: count });
+    });
   } catch (err) { res.status(400).json({ success: false, message: err.message }); }
 };
 
@@ -58,14 +62,16 @@ const updateCart = async (req, res) => {
   try {
     const { itemId, quantity } = req.body;
     if (!req.session.user) {
-      // Fix: actually update the guest session cart
       const sessionCart = req.session.cart || [];
       const item = sessionCart.find(i => i.variantId === parseInt(itemId));
       if (item) item.quantity = parseInt(quantity);
       req.session.cart = sessionCart;
-      const subtotal = sessionCart.reduce((a, i) => a + (i.effectivePrice * i.quantity), 0);
-      const itemCount = sessionCart.reduce((a, i) => a + i.quantity, 0);
-      return res.json({ success: true, subtotal, itemCount });
+      return req.session.save((err) => {
+        if (err) return res.status(500).json({ success: false, message: 'Error guardando sesión' });
+        const subtotal = sessionCart.reduce((a, i) => a + (i.effectivePrice * i.quantity), 0);
+        const itemCount = sessionCart.reduce((a, i) => a + i.quantity, 0);
+        return res.json({ success: true, subtotal, itemCount });
+      });
     }
     const cart = await cartService.updateCartItem(req.session.user.id, itemId, quantity);
     res.json({ success: true, subtotal: cart.subtotal, itemCount: cart.itemCount });
@@ -75,7 +81,13 @@ const updateCart = async (req, res) => {
 const removeFromCart = async (req, res) => {
   try {
     const { itemId } = req.params;
-    if (!req.session.user) { req.session.cart = (req.session.cart||[]).filter(i => i.variantId !== parseInt(itemId)); return res.json({ success: true }); }
+    if (!req.session.user) {
+      req.session.cart = (req.session.cart || []).filter(i => i.variantId !== parseInt(itemId));
+      return req.session.save((err) => {
+        if (err) return res.status(500).json({ success: false, message: 'Error guardando sesión' });
+        return res.json({ success: true });
+      });
+    }
     await cartService.removeFromCart(req.session.user.id, itemId);
     res.json({ success: true });
   } catch (err) { res.status(400).json({ success: false, message: err.message }); }
