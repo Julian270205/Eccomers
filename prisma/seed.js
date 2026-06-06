@@ -8,7 +8,7 @@ async function main() {
   console.log('🌱 Iniciando seed...');
 
   // ── Admin user ─────────────────────────────────────────────
-  const adminHash = await bcrypt.hash('Admin2024!', 12);
+  const adminHash = await bcrypt.hash('Admin2026!', 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@jhoanarosales.com' },
     update: {},
@@ -204,7 +204,7 @@ async function main() {
       value: 15,
       minOrderAmount: 50000,
       maxUses: 100,
-      startsAt: new Date('2024-01-01'),
+      startsAt: new Date('2026-01-01'),
       endsAt: new Date('2026-12-31'),
       isActive: true,
       appliesTo: 'all',
@@ -215,13 +215,13 @@ async function main() {
     where: { code: 'VERANO20' },
     update: {},
     create: {
-      name: 'Verano 2024 - 20% Off',
+      name: 'Verano 2026 - 20% Off',
       code: 'VERANO20',
       type: 'percentage',
       value: 20,
       minOrderAmount: 100000,
       maxUses: 50,
-      startsAt: new Date('2024-06-01'),
+      startsAt: new Date('2026-06-01'),
       endsAt: new Date('2026-08-31'),
       isActive: true,
       appliesTo: 'all',
@@ -231,7 +231,7 @@ async function main() {
 
   console.log('\n🌸 Seed completado exitosamente');
   console.log('─────────────────────────────────');
-  console.log('👤 Admin: admin@jhoanarosales.com / Admin2024!');
+  console.log('👤 Admin: admin@jhoanarosales.com / Admin2026!');
   console.log('👤 Cliente: cliente@demo.com / Cliente123!');
   console.log('🎟️  Cupones: BIENVENIDA15 (15%), VERANO20 (20%)');
 }
